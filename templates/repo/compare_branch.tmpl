@@ -1,0 +1,35 @@
+<div>
+    <div>
+        This branch is 
+        <a>{{.AheadNumber}} commits ahead</a>, 
+        <a>{{.BehindNumber}} commits behind</a> 
+        {{if .IsFork}}{{.BaseRepo.FullName}}:{{.BaseRepo.DefaultBranch}}
+        {{else}}.Repository.DefaultBranch
+        {{end}}
+    </div>
+    {{if .Permission.IsAdmin .IsFork}}
+    <div>
+        <icon></icon>
+        <p>contribute</p>
+        <icon></icon>
+    </div>
+    <div>
+        <icon></icon>
+        <p>sync fork</p>
+        <icon></icon>
+    </div>
+    <div class="contribute-dialog">
+        <p>This branch is {{.AheadNumber}} commit</p>
+        <button class="{{if AheadNumber 0}} hidden">contribute</button>
+    </div>
+    <div class="sync-dialog">
+        {{if eq .BehindNumber 0}}
+        <p>This branch is not behind upstream</p>
+        {{else if eq .Mergeable}}
+        <p>This branch can be udpate</p>
+        <button>update</button>
+        {{else}}
+        <p>This branch has conflict with upstream</p>
+        <button>Discard the change</button>
+    {{end}}
+</div>

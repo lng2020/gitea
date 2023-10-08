@@ -153,6 +153,9 @@
 				{{end}}
 			</div>
 		</div>
+		{{if not eq .BaseRepo.DefaultBranch .BranchName}}
+			{{template "repo/branch_compare" .}}
+		{{end}}
 		{{if .IsViewFile}}
 			{{template "repo/view_file" .}}
 		{{else if .IsBlame}}
