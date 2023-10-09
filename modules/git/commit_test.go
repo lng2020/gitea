@@ -38,6 +38,18 @@ func TestCommitsCountWithoutBase(t *testing.T) {
 	assert.Equal(t, int64(2), commitsCount)
 }
 
+func TestCommitsCountLeftRight(t *testing.T) {
+	bareRepo1Path := filepath.Join(testReposDir, "repo1_bare")
+	left, right, err := CommitsCountLeftRight(DefaultContext,
+		CommitsCountOptions{
+			RepoPath: bareRepo1Path,
+			Revision: []string{"master...branch1"},
+		})
+	assert.NoError(t, err)
+	assert.Equal(t, int64(6), left)
+	assert.Equal(t, int64(2), right)
+}
+
 func TestGetFullCommitID(t *testing.T) {
 	bareRepo1Path := filepath.Join(testReposDir, "repo1_bare")
 

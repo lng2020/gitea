@@ -951,6 +951,33 @@ func renderCode(ctx *context.Context) {
 	}
 	ctx.Data["Title"] = title
 
+	// If it's not base default branch, then find the ahead and behind commits number.
+	if ctx.Repo.Repository.IsFork || ctx.Repo.BranchName != ctx.Repo.Repository.DefaultBranch {
+		if ctx.Repo.Repository.IsFork {
+			aheadnumber, behindnumber, err := git.CommitsCountLeftRight(ctx.Repo.GitRepo.Ctx, git.CommitsCountOptions{
+				RepoPath: ctx.Repo.GitRepo.Path,
+				Revision: []string{ctx.Repo.BranchName + "..." + ctx.Repo.Repository.DefaultBranch},
+			})
+			if err != nil {
+				ctx.ServerError("CommitsCountLeftRight", err)
+				return
+			}
+			ctx.Data["Ahead"] = aheadnumber
+			ctx.Data["Behind"] = behindnumber
+		} else {
+			aheadnumber, behindnumber, err := git.CommitsCountLeftRight(ctx.Repo.GitRepo.Ctx, git.CommitsCountOptions{
+				RepoPath: ctx.Repo.GitRepo.Path,
+				Revision: []string{ctx.Repo.BranchName + "..." + ctx.Repo.Repository.DefaultBranch},
+			})
+			if err != nil {
+				ctx.ServerError("CommitsCountLeftRight", err)
+				return
+			}
+			ctx.Data["Ahead"] = aheadnumber
+			ctx.Data["Behind"] = behindnumber
+		}
+	}
+
 	branchLink := ctx.Repo.RepoLink + "/src/" + ctx.Repo.BranchNameSubURL()
 	treeLink := branchLink
 	rawLink := ctx.Repo.RepoLink + "/raw/" + ctx.Repo.BranchNameSubURL()

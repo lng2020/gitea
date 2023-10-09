@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os/exec"
 	"strconv"
@@ -187,6 +188,43 @@ func CommitsCount(ctx context.Context, opts CommitsCountOptions) (int64, error) 
 	}
 
 	return strconv.ParseInt(strings.TrimSpace(stdout), 10, 64)
+}
+
+// CommitsCountLeftRight
+func CommitsCountLeftRight(ctx context.Context, opts CommitsCountOptions) (int64, int64, error) {
+	cmd := NewCommand(ctx, "rev-list", "--left-right", "--count")
+
+	cmd.AddDynamicArguments(opts.Revision...)
+
+	if opts.Not != "" {
+		cmd.AddOptionValues("--not", opts.Not)
+	}
+
+	if len(opts.RelPath) > 0 {
+		cmd.AddDashesAndList(opts.RelPath...)
+	}
+
+	stdout, _, runErr := cmd.RunStdString(&RunOpts{Dir: opts.RepoPath})
+	if runErr != nil {
+		return 0, 0, runErr
+	}
+
+	counts := strings.Split(strings.TrimSpace(stdout), "\t")
+	if len(counts) != 2 {
+		return 0, 0, fmt.Errorf("invalid output: %s", stdout)
+	}
+
+	left, err := strconv.ParseInt(counts[0], 10, 64)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	right, err := strconv.ParseInt(counts[1], 10, 64)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return left, right, nil
 }
 
 // CommitsCount returns number of total commits of until current revision.

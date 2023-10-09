@@ -4,32 +4,36 @@
         <a>{{.AheadNumber}} commits ahead</a>, 
         <a>{{.BehindNumber}} commits behind</a> 
         {{if .IsFork}}{{.BaseRepo.FullName}}:{{.BaseRepo.DefaultBranch}}
-        {{else}}.Repository.DefaultBranch
+        {{else}}{{.Repository.DefaultBranch}}
         {{end}}
     </div>
-    {{if .Permission.IsAdmin .IsFork}}
+    {{if .AheadNumber}}
     <div>
         <icon></icon>
-        <p>contribute</p>
+        <p>Contribute</p>
         <icon></icon>
     </div>
+    {{end}}
+    {{if and .Permission.IsAdmin .Repository.IsFork}}
     <div>
         <icon></icon>
         <p>sync fork</p>
         <icon></icon>
     </div>
+    {{end}}
     <div class="contribute-dialog">
         <p>This branch is {{.AheadNumber}} commit</p>
-        <button class="{{if AheadNumber 0}} hidden">contribute</button>
+        <button class="{{if eq .AheadNumber 0}} hidden {{end}}">contribute</button>
     </div>
     <div class="sync-dialog">
         {{if eq .BehindNumber 0}}
         <p>This branch is not behind upstream</p>
-        {{else if eq .Mergeable}}
+        {{else if .Mergeable}}
         <p>This branch can be udpate</p>
-        <button>update</button>
+        <button>Update</button>
         {{else}}
         <p>This branch has conflict with upstream</p>
         <button>Discard the change</button>
-    {{end}}
+        {{end}}
+    </div>
 </div>
