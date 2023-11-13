@@ -158,4 +158,23 @@ func TestAPIUpdateProject(t *testing.T) {
 }
 
 func TestAPIDeleteProject(t *testing.T) {
+	defer tests.PrepareTestEnv(t)()
+
+	user := unittest.AssertExistsAndLoadBean(t, &user_model.User{ID: 2})
+	session := loginUser(t, user.Name)
+	token := getTokenForLoggedInUser(t, session, auth_model.AccessTokenScopeWriteUser, auth_model.AccessTokenScopeWriteRepository, auth_model.AccessTokenScopeWriteIssue)
+
+	testCase := []int{1, 2}
+
+	for _, test := range testCase {
+		link, _ := url.Parse(fmt.Sprintf("/api/v1/projects/%d", test))
+		link.RawQuery = url.Values{"token": {token}}.Encode()
+
+		req := NewRequest(t, "DELETE", link.String())
+		session.MakeRequest(t, req, http.StatusNoContent)
+
+		link, _ = url.Parse(fmt.Sprintf("/api/v1/projects/%d", test))
+		req = NewRequest(t, "GET", link.String())
+		session.MakeRequest(t, req, http.StatusNotFound)
+	}
 }
